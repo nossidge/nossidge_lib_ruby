@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+# Encoding: UTF-8
+
+################################################################################
+# Separate a group of photos into portrait vs landscape (vs square).
+# Creates subdirectories in the working directory to copy the files to.
+################################################################################
+
+require 'image_size'
+require 'fileutils'
+
+################################################################################
+
+if ARGV.empty?
+  files = Dir.glob("*.{bmp,gif,img,jpeg,jpg,png,tiff}", File::FNM_CASEFOLD)
+else
+  files = Dir[*ARGV]
+end
+
+dir_port   = Dir.pwd + '/port'
+dir_land   = Dir.pwd + '/land'
+dir_square = Dir.pwd + '/square'
+
+files.each do |f|
+  if File.file?(f)
+    image = ImageSize.path(f)
+    dest = (image.height > image.width) ? dir_port : dir_land
+    dest = dir_square if (image.height == image.width)
+    Dir.mkdir(dest) unless File.exists?(dest)
+    FileUtils.cp(f, dest + '/' + File.basename(f))
+  end
+end
+
+################################################################################
