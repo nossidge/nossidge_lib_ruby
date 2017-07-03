@@ -29,7 +29,7 @@ module NossidgeLibRuby::CoreExtensions::Array::SortByDistance
 
     # Return Enumerator of all possible output arrays.
     if index.nil?
-      Enumerator.new do |y|
+      Enumerator.new(self.count) do |y|
         self.each.with_index do |value, index|
           y << self.sort_by_distance_from_index(index, reverse: reverse)
         end
@@ -37,7 +37,7 @@ module NossidgeLibRuby::CoreExtensions::Array::SortByDistance
 
     # Return Enumerator of results for a single index.
     else
-      Enumerator.new do |y|
+      Enumerator.new(self.count) do |y|
         y << self[index]
         counter = 0
         loop do
@@ -75,11 +75,10 @@ module NossidgeLibRuby::CoreExtensions::Array::SortByDistance
   # Find all elements that match 'value' and return the
   # sort_by_distance results for all, as an Enumerator.
   #
-  def sort_by_distance_from_value value, reverse: false
-    Enumerator.new do |y|
-      self.each_index.select do |i|
-        self[i] == value
-      end.each do |index|
+  def sort_by_distance_from_value value = nil, reverse: false
+    matching = self.each_index.select { |i| self[i] == value }
+    Enumerator.new(matching.count) do |y|
+      matching.each do |index|
         y << self.sort_by_distance_from_index(index, reverse: reverse)
       end
     end
