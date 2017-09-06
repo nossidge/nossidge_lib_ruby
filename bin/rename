@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+# Encoding: UTF-8
+
+################################################################################
+# A simple and incomplete replacement for the GNU rename utility.
+# Written as a 'replace' alternative that will work in Windows.
+################################################################################
+
+require 'optparse'
+
+################################################################################
+
+# Default options: find space, replace with underscore.
+options = {
+  find:    ' ',
+  replace: '_',
+}
+
+# Get all of the command-line options.
+optparse = OptionParser.new do |opts|
+
+  # Set a banner, displayed at the top of the help screen.
+  opts.banner = "A simple and incomplete replacement for the GNU rename utility.\n"
+  opts.banner += "By default, replaces spaces with underscores.\n\n"
+
+  # These will be further validated within the class.
+  opts.on('-f', '--find STRING', 'String to find') do |s|
+    options[:find] = s
+  end
+  opts.on('-r', '--replace STRING', 'String to replace') do |s|
+    options[:replace] = s
+  end
+
+  # Help output.
+  opts.separator nil
+  opts.on('-h', '--help', 'Display this help screen' ) do
+    puts opts
+    exit 0
+  end
+end
+
+# Parse the options and show errors on failure.
+begin
+  optparse.parse! ARGV
+rescue OptionParser::ParseError => e
+  puts e
+  exit 1
+end
+
+################################################################################
+
+# For each file, make the name replacements.
+ARGV.each do |i|
+  begin
+    File.rename i, i.gsub(options[:find], options[:replace])
+  rescue
+    puts "File not found: #{i}"
+  end
+end
+
+################################################################################
